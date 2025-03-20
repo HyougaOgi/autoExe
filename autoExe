@@ -12,9 +12,9 @@ count=0
 
 function execute_command() {
   count=$((count + 1)) 
-  echo "#############################"
+  echo "###################################"
   eval "$command"
-  echo "#############################"
+  echo "###################################"
 }
 
 function clear_screen() {
