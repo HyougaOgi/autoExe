@@ -1,0 +1,89 @@
+#!/bin/bash
+
+command="$@"
+echo "$command Execute"
+
+if [ -z "$1" ]; then
+  echo "Error: No command provided." >&2
+  exit 1
+fi
+
+count=0
+
+function execute_command() {
+  count=$((count + 1)) 
+  echo "#############################"
+  eval "$command"
+  echo "#############################"
+}
+
+function clear_screen() {
+    stty sane
+    clear
+    echo "Executing autoExe"
+    # stty -icanon -echo
+    stty -icanon -echo -ixon
+}
+
+function exit_script() {
+    stty sane
+    echo "Exiting..."
+    exit 0
+}
+
+function measure_time() {
+  time execute_command
+}
+
+function show_count() {
+  echo "Execution count: $count"
+}
+
+function reset_count() {
+  echo "reset count"
+  count=0
+}
+
+function command_menu() {
+  echo "###################################"
+  echo "ctrl + r : execute command"
+  echo "ctrl + t : show time and execution"
+  echo "ctrl + s : show count of execution"
+  echo "ctrl + e : reset count"
+  echo "ctrl + f : clear screen"
+  echo "ctrl + q or c : exit system"
+  echo "###################################"
+}
+
+trap 'stty sane; echo "Exiting..."; exit 0' INT
+
+# stty -icanon -echo
+stty -icanon -echo -ixon
+
+while true; do
+  key=$(dd bs=1 count=1 2>/dev/null)
+  # r
+  if [ "$key" == $'\x12' ]; then
+    execute_command
+  # t
+  elif [ "$key" == $'\x14' ]; then
+    measure_time 
+  # s
+  elif [ "$key" == $'\x13' ]; then  
+    show_count 
+  # e
+  elif [ "$key" == $'\x05' ]; then 
+    reset_count  
+  # f
+  elif [ "$key" == $'\x06' ]; then
+    clear_screen
+  
+  elif [ "$key" == $'\x17' ]; then
+    command_menu
+  # q
+  elif [ "$key" == $'\x11' ]; then
+    exit_script
+  fi
+done
+stty sane
+
